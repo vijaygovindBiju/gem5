@@ -33,6 +33,13 @@ This report summarizes the performance of various data cache configurations (16k
 - **FIFO (First-In, First-Out):** Evicts the 'oldest' line regardless of access; prone to thrashing.
 - **Random:** Evicts victims at random; simple, immune to pathological access patterns.
 
+## 🛠️ Technical Specifications
+- **Simulation:** gem5 SE (System-call Emulation), x86_64 ISA
+- **Geometry:** 16kB Cache, 64-Byte Lines (Total 256 lines)
+- **Address Decoding (Offset):** 6 bits for all configurations
+- **Address Decoding (Index/Tag):** Variable (from 1-way: 8 index/50 tag bits to Full: 0 index/58 tag bits)
+- **L1i Cache:** 16kB, 4-way associative (fixed across all runs)
+
 ## 🔍 Observations & Insights
 
 ### 1. The Associativity Paradox (8-Way vs Full-Assoc)

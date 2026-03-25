@@ -78,6 +78,13 @@ with open("PERFORMANCE_SUMMARY.md", "w") as f:
     f.write("- **FIFO (First-In, First-Out):** Evicts the 'oldest' line regardless of access; prone to thrashing.\n")
     f.write("- **Random:** Evicts victims at random; simple, immune to pathological access patterns.\n\n")
 
+    f.write("## 🛠️ Technical Specifications\n")
+    f.write("- **Simulation:** gem5 SE (System-call Emulation), x86_64 ISA\n")
+    f.write("- **Geometry:** 16kB Cache, 64-Byte Lines (Total 256 lines)\n")
+    f.write("- **Address Decoding (Offset):** 6 bits for all configurations\n")
+    f.write("- **Address Decoding (Index/Tag):** Variable (from 1-way: 8 index/50 tag bits to Full: 0 index/58 tag bits)\n")
+    f.write("- **L1i Cache:** 16kB, 4-way associative (fixed across all runs)\n\n")
+
     f.write("## 🔍 Observations & Insights\n\n")
     f.write("### 1. The Associativity Paradox (8-Way vs Full-Assoc)\n")
     f.write("- Counter-intuitively, **8-way LRU** performs better than **Full-Assoc LRU**.\n")

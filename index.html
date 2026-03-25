@@ -123,6 +123,7 @@
         <li><a href="#system">System Architecture</a></li>
         <li><a href="#workload">Workload Details</a></li>
         <li><a href="#concepts">Core Concepts</a></li>
+        <li><a href="#specs-deep-dive">Technical Specs</a></li>
         <li><a href="#results">Simulation Results</a></li>
         <li><a href="#analysis">Analysis & Insights</a></li>
     </ul>
@@ -212,6 +213,44 @@ system.cpu.dcache = Cache(
                     <li><strong>LRU (Least Recently Used):</strong> Evicts the line that hasn't been accessed for the longest time. Best for temporal locality.</li>
                     <li><strong>FIFO (First-In, First-Out):</strong> Evicts the "oldest" line regardless of access history. Simple but prone to thrashing.</li>
                     <li><strong>Random:</strong> Picks a victim at random. Uniform performance, immune to pathological access patterns.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="concepts">
+...
+        </div>
+    </section>
+
+    <section id="specs-deep-dive">
+        <h2>Technical Specification Deep Dive</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Cache Geometry (16kB @ 64B line)</h3>
+                <p>Detailed breakdown for a 64-bit address space:</p>
+                <table class="specs-table">
+                    <thead>
+                        <tr><th>Assoc</th><th>Sets</th><th>Index</th><th>Offset</th><th>Tag</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1-way</td><td>256</td><td>8 bits</td><td>6 bits</td><td>50 bits</td></tr>
+                        <tr><td>2-way</td><td>128</td><td>7 bits</td><td>6 bits</td><td>51 bits</td></tr>
+                        <tr><td>4-way</td><td>64</td><td>6 bits</td><td>6 bits</td><td>52 bits</td></tr>
+                        <tr><td>8-way</td><td>32</td><td>5 bits</td><td>6 bits</td><td>53 bits</td></tr>
+                        <tr><td>Full</td><td>1</td><td>0 bits</td><td>6 bits</td><td>58 bits</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <h3>Simulation Metadata</h3>
+                <ul>
+                    <li><strong>Simulation Mode:</strong> gem5 SE (System-call Emulation)</li>
+                    <li><strong>ISA Architecture:</strong> x86_64</li>
+                    <li><strong>Cache Memory Controller:</strong> gem5 Classic Memory System</li>
+                    <li><strong>Main Memory:</strong> 512MB DDR3_1600_8x8</li>
+                    <li><strong>Tick Frequency:</strong> 1 THz (1 tick = 1 ps)</li>
+                    <li><strong>L1i Cache:</strong> 16kB, 4-way, 2cy fixed</li>
                 </ul>
             </div>
         </div>
