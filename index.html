@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Cache Analysis & System Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        nav {
+            width: var(--sidebar-width);
+            background: var(--primary);
+            color: white;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        nav h2 { font-size: 1.2rem; margin-bottom: 40px; color: var(--accent); }
+        nav ul { list-style: none; padding: 0; }
+        nav li { margin-bottom: 15px; }
+        nav a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        nav a.active { background: var(--accent); color: white; }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 40px;
+        }
+
+        section { margin-bottom: 60px; scroll-margin-top: 40px; }
+        h1 { font-size: 2.2rem; margin-bottom: 10px; color: var(--primary); }
+        .subtitle { color: var(--text-muted); margin-bottom: 30px; }
+
+        /* Grid Layouts */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        .stat-card { border-top: 4px solid var(--accent); }
+        .stat-label { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; margin: 10px 0; color: var(--primary); }
+        .stat-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Tech Specs Table */
+        .specs-table { width: 100%; border-collapse: collapse; }
+        .specs-table td { padding: 12px; border-bottom: 1px solid var(--border); }
+        .specs-table td:first-child { font-weight: 600; color: var(--text-muted); width: 35%; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th { background: #f1f5f9; text-align: left; padding: 15px; font-size: 0.85rem; color: var(--text-muted); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge-lru { background: #dcfce7; color: #166534; }
+        .badge-fifo { background: #fef3c7; color: #92400e; }
+        .badge-random { background: #dbeafe; color: #1e40af; }
+
+        /* Workload Details */
+        .phase-list { padding-left: 20px; }
+        .phase-list li { margin-bottom: 15px; line-height: 1.5; }
+        .code-snippet { background: #1e293b; color: #e2e8f0; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; overflow-x: auto; }
+
+        @media (max-width: 1024px) {
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h2>Gem5 Cache Lab</h2>
+    <ul>
+        <li><a href="#overview" class="active">Project Overview</a></li>
+        <li><a href="#system">System Architecture</a></li>
+        <li><a href="#workload">Workload Details</a></li>
+        <li><a href="#results">Simulation Results</a></li>
+        <li><a href="#analysis">Analysis & Insights</a></li>
+    </ul>
+</nav>
+
+<main>
+    <section id="overview">
+        <h1>Cache Performance Analysis</h1>
+        <p class="subtitle">Empirical evaluation of associativity and replacement policies on a 16kB data cache.</p>
+        
+        <div class="grid-3">
+            <div class="card stat-card" id="best-overall">
+                <div class="stat-label">Lowest Miss Rate</div>
+                <div class="stat-value">--</div>
+                <div class="stat-desc">Configuration: --</div>
+            </div>
+            <div class="card stat-card" id="avg-gain" style="border-top-color: var(--success)">
+                <div class="stat-label">CPI Improvement</div>
+                <div class="stat-value">24%</div>
+                <div class="stat-desc">From Direct to 8-Way LRU</div>
+            </div>
+            <div class="card stat-card" id="total-sims" style="border-top-color: var(--warning)">
+                <div class="stat-label">Simulation Runs</div>
+                <div class="stat-value">15</div>
+                <div class="stat-desc">5 Associativities x 3 Policies</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="system">
+        <h2>System Architecture</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Hardware Specifications</h3>
+                <table class="specs-table">
+                    <tr><td>CPU Model</td><td>TimingSimpleCPU (x86)</td></tr>
+                    <tr><td>Clock Frequency</td><td>1.0 GHz</td></tr>
+                    <tr><td>System Memory</td><td>512 MB DDR3_1600_8x8</td></tr>
+                    <tr><td>L1i Cache</td><td>16 kB (4-way, 2cy Latency)</td></tr>
+                    <tr><td>L1d Cache</td><td>16 kB (Variable, 2cy Latency)</td></tr>
+                    <tr><td>Cache Line Size</td><td>64 Bytes</td></tr>
+                </table>
+            </div>
+            <div class="card">
+                <h3>Simulation Environment</h3>
+                <p>The system was simulated using <strong>gem5</strong> in System-Call Emulation (SE) mode. All configurations utilize a single-core environment with a shared system bus connecting the caches to main memory.</p>
+                <div class="code-snippet">
+# Data Cache Template
+system.cpu.dcache = Cache(
+    size='16kB', assoc=X,
+    tag_latency=2, data_latency=2,
+    replacement_policy=Y_RP()
+)
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="workload">
+        <h2>Workload Analysis (test.c)</h2>
+        <div class="card">
+            <p>The benchmark was specifically designed to create pathological memory access patterns to stress-test cache associativity and replacement logic.</p>
+            <ul class="phase-list">
+                <li><strong>Phase 1 & 2 (Conflict Stress):</strong> Accesses multiple memory locations that map to the same set in a direct-mapped cache using a 16kB stride (<code>CONFLICT_STRIDE</code>). This generates high conflict misses for low associativity.</li>
+                <li><strong>Phase 5 (Replacement Stress):</strong> Iterates through 257 distinct cache lines. Since the cache only holds 256 lines, this forces a replacement on every cycle if the policy is not efficient (FIFO thrashing).</li>
+                <li><strong>Phase 6 (Working Set Sweep):</strong> Gradually increases the working set size to observe the "knee" in the performance curve.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="results">
+        <h2>Simulation Results</h2>
+        <div class="grid-2" style="margin-bottom: 30px;">
+            <div class="card"><canvas id="missChart"></canvas></div>
+            <div class="card"><canvas id="cpiChart"></canvas></div>
+        </div>
+        <div class="table-wrap">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Configuration</th>
+                        <th>Policy</th>
+                        <th>Miss Rate</th>
+                        <th>Total Misses</th>
+                        <th>CPI</th>
+                        <th>Sim Time (s)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="analysis">
+        <h2>Detailed Analysis</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>The Associativity Curve</h3>
+                <p>The data shows a clear <strong>diminishing returns</strong> curve. Moving from 1-way to 2-way reduces misses by ~50%. 4-way to 8-way shows smaller gains. 8-way LRU actually performed better than Full-Assoc LRU in this specific workload due to how the 257-line stress loop interacts with the set-indexing logic.</p>
+            </div>
+            <div class="card">
+                <h3>The FIFO Anomaly</h3>
+                <p>In the <strong>Fully Associative FIFO</strong> configuration, we observed a massive spike in misses (5.03%). This is because the workload's Phase 5 access pattern (0, 1, ..., 256, 0, 1...) perfectly matches the worst-case for FIFO, where the line just evicted is the one needed next.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    const simulationData = [
+    {
+        "id": "1_fifo",
+        "assoc": "1",
+        "policy": "FIFO",
+        "time": 0.030148,
+        "missRate": 3.4318,
+        "misses": 145548,
+        "accesses": 4241101,
+        "cpi": 5.122588
+    },
+    {
+        "id": "1_lru",
+        "assoc": "1",
+        "policy": "LRU",
+        "time": 0.030148,
+        "missRate": 3.4318,
+        "misses": 145548,
+        "accesses": 4241101,
+        "cpi": 5.122588
+    },
+    {
+        "id": "1_random",
+        "assoc": "1",
+        "policy": "RANDOM",
+        "time": 0.030148,
+        "missRate": 3.4318,
+        "misses": 145548,
+        "accesses": 4241101,
+        "cpi": 5.122588
+    },
+    {
+        "id": "2_fifo",
+        "assoc": "2",
+        "policy": "FIFO",
+        "time": 0.026485,
+        "missRate": 1.7903,
+        "misses": 75928,
+        "accesses": 4241101,
+        "cpi": 4.500055
+    },
+    {
+        "id": "2_lru",
+        "assoc": "2",
+        "policy": "LRU",
+        "time": 0.025379,
+        "missRate": 1.2852,
+        "misses": 54505,
+        "accesses": 4241101,
+        "cpi": 4.312176
+    },
+    {
+        "id": "2_random",
+        "assoc": "2",
+        "policy": "RANDOM",
+        "time": 0.02584,
+        "missRate": 1.4853,
+        "misses": 62992,
+        "accesses": 4241101,
+        "cpi": 4.390577
+    },
+    {
+        "id": "4_fifo",
+        "assoc": "4",
+        "policy": "FIFO",
+        "time": 0.023952,
+        "missRate": 0.6901,
+        "misses": 29269,
+        "accesses": 4241101,
+        "cpi": 4.069676
+    },
+    {
+        "id": "4_lru",
+        "assoc": "4",
+        "policy": "LRU",
+        "time": 0.023467,
+        "missRate": 0.4586,
+        "misses": 19448,
+        "accesses": 4241101,
+        "cpi": 3.987402
+    },
+    {
+        "id": "4_random",
+        "assoc": "4",
+        "policy": "RANDOM",
+        "time": 0.023355,
+        "missRate": 0.3948,
+        "misses": 16742,
+        "accesses": 4241101,
+        "cpi": 3.968233
+    },
+    {
+        "id": "8_fifo",
+        "assoc": "8",
+        "policy": "FIFO",
+        "time": 0.023744,
+        "missRate": 0.5475,
+        "misses": 23220,
+        "accesses": 4241101,
+        "cpi": 4.034377
+    },
+    {
+        "id": "8_lru",
+        "assoc": "8",
+        "policy": "LRU",
+        "time": 0.022929,
+        "missRate": 0.1877,
+        "misses": 7960,
+        "accesses": 4241101,
+        "cpi": 3.895874
+    },
+    {
+        "id": "8_random",
+        "assoc": "8",
+        "policy": "RANDOM",
+        "time": 0.023006,
+        "missRate": 0.2186,
+        "misses": 9273,
+        "accesses": 4241101,
+        "cpi": 3.909076
+    },
+    {
+        "id": "fully_fifo",
+        "assoc": "Full",
+        "policy": "FIFO",
+        "time": 0.034124,
+        "missRate": 5.0315,
+        "misses": 213391,
+        "accesses": 4241101,
+        "cpi": 5.798175
+    },
+    {
+        "id": "fully_lru",
+        "assoc": "Full",
+        "policy": "LRU",
+        "time": 0.023162,
+        "missRate": 0.2952,
+        "misses": 12518,
+        "accesses": 4241101,
+        "cpi": 3.935470
+    },
+    {
+        "id": "full_random",
+        "assoc": "Full",
+        "policy": "RANDOM",
+        "time": 0.023047,
+        "missRate": 0.2242,
+        "misses": 9508,
+        "accesses": 4241101,
+        "cpi": 3.915927
+    }
+];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTable();
+        initHighlights();
+        initCharts();
+
+        // Nav Scroll spy
+        const links = document.querySelectorAll('nav a');
+        window.addEventListener('scroll', () => {
+            let current = "";
+            document.querySelectorAll('section').forEach(section => {
+                const top = section.offsetTop;
+                if (pageYOffset >= top - 60) current = section.getAttribute('id');
+            });
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) link.classList.add('active');
+            });
+        });
+    });
+
+    function initTable() {
+        const tbody = document.querySelector('#resultsTable tbody');
+        simulationData.forEach(d => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${d.assoc}-way</td>
+                <td><span class="badge badge-${d.policy.toLowerCase()}">${d.policy}</span></td>
+                <td>${d.missRate.toFixed(3)}%</td>
+                <td>${d.misses.toLocaleString()}</td>
+                <td>${d.cpi.toFixed(3)}</td>
+                <td>${d.time.toFixed(4)}s</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function initHighlights() {
+        const best = [...simulationData].sort((a,b) => a.missRate - b.missRate)[0];
+        document.querySelector('#best-overall .stat-value').textContent = best.missRate.toFixed(3) + '%';
+        document.querySelector('#best-overall .stat-desc').textContent = `Config: ${best.assoc}-way ${best.policy}`;
+    }
+
+    function initCharts() {
+        const labels = ['1-way', '2-way', '4-way', '8-way', 'Full'];
+        const policies = ['LRU', 'FIFO', 'RANDOM'];
+        const colors = { LRU: '#10b981', FIFO: '#f59e0b', RANDOM: '#3b82f6' };
+
+        const createDatasets = (metric) => policies.map(p => ({
+            label: p,
+            borderColor: colors[p],
+            backgroundColor: colors[p] + '22',
+            data: labels.map(l => {
+                const assoc = l.split('-')[0];
+                const found = simulationData.find(d => d.assoc === assoc && d.policy === p);
+                return found ? found[metric] : null;
+            }),
+            fill: true,
+            tension: 0.3
+        }));
+
+        new Chart(document.getElementById('missChart'), {
+            type: 'line',
+            data: { labels, datasets: createDatasets('missRate') },
+            options: { plugins: { title: { display: true, text: 'Miss Rate (%) per Associativity' } } }
+        });
+
+        new Chart(document.getElementById('cpiChart'), {
+            type: 'line',
+            data: { labels, datasets: createDatasets('cpi') },
+            options: { plugins: { title: { display: true, text: 'CPI per Associativity' } } }
+        });
+    }
+</script>
+
+</body>
+</html>

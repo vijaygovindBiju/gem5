@@ -1,0 +1,152 @@
+[
+    {
+        "id": "1_fifo",
+        "assoc": "1",
+        "policy": "FIFO",
+        "time": 0.030148,
+        "missRate": 3.4318,
+        "misses": 145548,
+        "accesses": 4241101,
+        "cpi": 5.122588
+    },
+    {
+        "id": "1_lru",
+        "assoc": "1",
+        "policy": "LRU",
+        "time": 0.030148,
+        "missRate": 3.4318,
+        "misses": 145548,
+        "accesses": 4241101,
+        "cpi": 5.122588
+    },
+    {
+        "id": "1_random",
+        "assoc": "1",
+        "policy": "RANDOM",
+        "time": 0.030148,
+        "missRate": 3.4318,
+        "misses": 145548,
+        "accesses": 4241101,
+        "cpi": 5.122588
+    },
+    {
+        "id": "2_fifo",
+        "assoc": "2",
+        "policy": "FIFO",
+        "time": 0.026485,
+        "missRate": 1.7902999999999998,
+        "misses": 75928,
+        "accesses": 4241101,
+        "cpi": 4.500055
+    },
+    {
+        "id": "2_lru",
+        "assoc": "2",
+        "policy": "LRU",
+        "time": 0.025379,
+        "missRate": 1.2852000000000001,
+        "misses": 54505,
+        "accesses": 4241101,
+        "cpi": 4.312176
+    },
+    {
+        "id": "2_random",
+        "assoc": "2",
+        "policy": "RANDOM",
+        "time": 0.02584,
+        "missRate": 1.4853,
+        "misses": 62992,
+        "accesses": 4241101,
+        "cpi": 4.390577
+    },
+    {
+        "id": "4_fifo",
+        "assoc": "4",
+        "policy": "FIFO",
+        "time": 0.023952,
+        "missRate": 0.6901,
+        "misses": 29269,
+        "accesses": 4241101,
+        "cpi": 4.069676
+    },
+    {
+        "id": "4_lru",
+        "assoc": "4",
+        "policy": "LRU",
+        "time": 0.023467,
+        "missRate": 0.4586,
+        "misses": 19448,
+        "accesses": 4241101,
+        "cpi": 3.987402
+    },
+    {
+        "id": "4_random",
+        "assoc": "4",
+        "policy": "RANDOM",
+        "time": 0.023355,
+        "missRate": 0.39480000000000004,
+        "misses": 16742,
+        "accesses": 4241101,
+        "cpi": 3.968233
+    },
+    {
+        "id": "8_fifo",
+        "assoc": "8",
+        "policy": "FIFO",
+        "time": 0.023744,
+        "missRate": 0.5475,
+        "misses": 23220,
+        "accesses": 4241101,
+        "cpi": 4.034377
+    },
+    {
+        "id": "8_lru",
+        "assoc": "8",
+        "policy": "LRU",
+        "time": 0.022929,
+        "missRate": 0.1877,
+        "misses": 7960,
+        "accesses": 4241101,
+        "cpi": 3.895874
+    },
+    {
+        "id": "8_random",
+        "assoc": "8",
+        "policy": "RANDOM",
+        "time": 0.023006,
+        "missRate": 0.2186,
+        "misses": 9273,
+        "accesses": 4241101,
+        "cpi": 3.909076
+    },
+    {
+        "id": "fully_fifo",
+        "assoc": "Fully",
+        "policy": "FIFO",
+        "time": 0.034124,
+        "missRate": 5.031499999999999,
+        "misses": 213391,
+        "accesses": 4241101,
+        "cpi": 5.798175
+    },
+    {
+        "id": "fully_lru",
+        "assoc": "Fully",
+        "policy": "LRU",
+        "time": 0.023162,
+        "missRate": 0.2952,
+        "misses": 12518,
+        "accesses": 4241101,
+        "cpi": 3.93547
+    },
+    {
+        "id": "full_random",
+        "assoc": "Full",
+        "policy": "RANDOM",
+        "time": 0.023047,
+        "missRate": 0.2242,
+        "misses": 9508,
+        "accesses": 4241101,
+        "cpi": 3.915927
+    }
+]
