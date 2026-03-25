@@ -65,17 +65,20 @@ with open("PERFORMANCE_SUMMARY.md", "w") as f:
         f.write(f"| {r['Config']} | {r['Time (s)']} | {r['Miss Rate']} | {r['Misses']} | {r['Accesses']} | {r['CPI']} |\n")
     
     f.write("\n## 🔍 Observations & Insights\n\n")
-    f.write("### 1. Effect of Associativity\n")
-    f.write("- Increasing associativity generally reduces **conflict misses**. Moving from 1-way (Direct Mapped) to 8-way significantly improves performance.\n")
-    f.write("- Full Associativity represents the theoretical limit for minimizing conflict misses for a given cache size.\n\n")
+    f.write("### 1. The Associativity Paradox (8-Way vs Full-Assoc)\n")
+    f.write("- Counter-intuitively, **8-way LRU** (0.19% miss rate) performs better than **Full-Assoc LRU** (0.30%).\n")
+    f.write("- This is due to the specific access pattern in `test.c` (Phase 5), which accesses 257 lines. In an 8-way cache, only one set (Set 0) experiences conflict misses and thrashing, while the other 31 sets remain unaffected. In a Fully Associative cache, *every* access to the 257th line can evict a line that is needed soon by *any* part of the program.\n\n")
     
-    f.write("### 2. Replacement Policy Comparison\n")
-    f.write("- **LRU (Least Recently Used):** Typically performs best by exploiting temporal locality.\n")
-    f.write("- **FIFO (First-In, First-Out):** A simpler policy that often performs slightly worse than LRU but better than Random.\n")
-    f.write("- **Random:** Usually the worst-performing policy but requires the least hardware complexity.\n\n")
+    f.write("### 2. The FIFO Thrashing Anomaly\n")
+    f.write("- **Fully Associative FIFO** experiences massive thrashing (5.03% miss rate).\n")
+    f.write("- Because FIFO evicts the oldest line regardless of reuse, it enters a pathological state in cyclic access patterns where the working set is slightly larger than the cache. The line just evicted is the one needed next, creating a 'worst-case' scenario for cache performance.\n\n")
     
-    f.write("### 3. Benchmark Characteristics (`test.c`)\n")
-    f.write("- The benchmark includes loops specifically designed to stress the cache (Phases 1, 2, and 5).\n")
-    f.write("- Phase 5 forces evictions by accessing 257 lines in a 256-line cache, making the replacement policy critical.\n")
+    f.write("### 3. Random Replacement Policy Efficiency\n")
+    f.write("- The **Random** policy is surprisingly robust, often matching or even beating LRU at lower associativities (e.g., 4-way Random @ 0.39% vs LRU @ 0.46%).\n")
+    f.write("- Random replacement avoids the pathological eviction patterns that can cripple FIFO or LRU in specific workloads, making it a viable low-complexity alternative for hardware implementation.\n\n")
+    
+    f.write("### 4. CPI & Hardware Design Implications\n")
+    f.write("- There is a clear **diminishing returns** curve. Moving from 1-way to 4-way provides the largest performance leap.\n")
+    f.write("- The transition from 4-way to 8-way or Full-Assoc offers marginal gains at the cost of significantly increased hardware complexity (more comparators, higher power, and potentially higher hit latency).\n")
 
 print("Generated PERFORMANCE_SUMMARY.md")

@@ -216,15 +216,27 @@ system.cpu.dcache = Cache(
     </section>
 
     <section id="analysis">
-        <h2>Detailed Analysis</h2>
+        <h2>Detailed Analysis & Insights</h2>
         <div class="grid-2">
             <div class="card">
-                <h3>The Associativity Curve</h3>
-                <p>The data shows a clear <strong>diminishing returns</strong> curve. Moving from 1-way to 2-way reduces misses by ~50%. 4-way to 8-way shows smaller gains. 8-way LRU actually performed better than Full-Assoc LRU in this specific workload due to how the 257-line stress loop interacts with the set-indexing logic.</p>
+                <h3>The Associativity Paradox</h3>
+                <p>Counter-intuitively, the <strong>8-Way Set Associative</strong> cache (LRU) outperformed the <strong>Fully Associative</strong> cache in our tests (0.188% vs 0.295% miss rate). This is due to the "Victim Concentration" effect.</p>
+                <p>In the Fully Associative cache, the 257th line in our stress loop (Phase 5) can evict <em>any</em> of the 256 lines. Since the loop then accesses those lines in reverse, the LRU policy consistently evicts the very next line needed. However, in the 8-way cache, the 257th line only competes for the 8 slots in <em>Set 0</em>. The other 31 sets remain "protected," preserving their temporal locality and resulting in fewer total misses.</p>
             </div>
             <div class="card">
-                <h3>The FIFO Anomaly</h3>
-                <p>In the <strong>Fully Associative FIFO</strong> configuration, we observed a massive spike in misses (5.03%). This is because the workload's Phase 5 access pattern (0, 1, ..., 256, 0, 1...) perfectly matches the worst-case for FIFO, where the line just evicted is the one needed next.</p>
+                <h3>The FIFO Thrashing Anomaly</h3>
+                <p>The <strong>Fully Associative FIFO</strong> configuration showed a catastrophic miss rate of <strong>5.03%</strong>. This is a classic example of cache thrashing.</p>
+                <p>Because FIFO evicts the "oldest" line regardless of how recently it was accessed, it falls into a pathological state during cyclic accesses. In Phase 5, after filling the cache (0-255), accessing line 256 evicts line 0. When the code immediately needs line 0 again, it misses and evicts line 1. This "belady-like" behavior continues, turning the cache into a simple delay line rather than a storage buffer.</p>
+            </div>
+            <div class="card">
+                <h3>Random Policy: The "Safe" Middle Ground</h3>
+                <p>The <strong>Random replacement policy</strong> proved surprisingly robust, often outperforming FIFO and even matching LRU at 4-way associativity (0.395% miss rate). </p>
+                <p>While LRU is superior for standard temporal locality, Random's lack of a fixed eviction pattern makes it immune to the pathological "loop-just-larger-than-cache" scenarios that cripple FIFO and occasionally hinder LRU. For hardware designers, this suggests that Random is a highly cost-effective choice when the workload patterns are unpredictable.</p>
+            </div>
+            <div class="card">
+                <h3>Performance Impact (CPI)</h3>
+                <p>The correlation between miss rate and <strong>Cycles Per Instruction (CPI)</strong> is nearly linear. The transition from 1-way to 8-way LRU reduced CPI from <strong>5.12</strong> to <strong>3.90</strong>—a 24% boost in execution efficiency.</p>
+                <p>The "knee" of the performance curve is clearly visible at 4-way associativity. Beyond 4-way, the hardware complexity increases significantly (more comparators, larger multiplexers) while the CPI gains shrink to less than 2%. This justifies why most modern L1 caches settle for 4-way or 8-way associativity.</p>
             </div>
         </div>
     </section>
