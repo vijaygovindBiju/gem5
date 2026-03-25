@@ -67,7 +67,18 @@ with open("PERFORMANCE_SUMMARY.md", "w") as f:
     for r in results:
         f.write(f"| {r['Config']} | {r['HitRate']} | {r['MissRate']} | {r['AMAT']} | {r['CPI']} | {r['Time']} |\n")
     
-    f.write("\n## 🔍 Observations & Insights\n\n")
+    f.write("## 💡 Core Concepts\n\n")
+    f.write("### Cache Mapping strategies\n")
+    f.write("- **Direct Mapped (1-way):** Fixed memory-to-line mapping; fast but high conflict.\n")
+    f.write("- **Set-Associative (N-way):** Mapping to a set of N possible locations; balances speed and flexibility.\n")
+    f.write("- **Fully Associative:** Flexible mapping to any line; eliminates conflict misses but complex hardware.\n\n")
+    
+    f.write("### Replacement Policies\n")
+    f.write("- **LRU (Least Recently Used):** Evicts the line with the oldest access time; exploits temporal locality.\n")
+    f.write("- **FIFO (First-In, First-Out):** Evicts the 'oldest' line regardless of access; prone to thrashing.\n")
+    f.write("- **Random:** Evicts victims at random; simple, immune to pathological access patterns.\n\n")
+
+    f.write("## 🔍 Observations & Insights\n\n")
     f.write("### 1. The Associativity Paradox (8-Way vs Full-Assoc)\n")
     f.write("- Counter-intuitively, **8-way LRU** performs better than **Full-Assoc LRU**.\n")
     f.write("- This is due to the specific access pattern in `test.c` (Phase 5), which accesses 257 lines. In an 8-way cache, only one set (Set 0) experiences conflict misses and thrashing, while the other 31 sets remain unaffected. In a Fully Associative cache, *every* access to the 257th line can evict a line that is needed soon by *any* part of the program.\n\n")

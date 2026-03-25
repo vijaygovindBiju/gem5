@@ -122,6 +122,7 @@
         <li><a href="#overview" class="active">Project Overview</a></li>
         <li><a href="#system">System Architecture</a></li>
         <li><a href="#workload">Workload Details</a></li>
+        <li><a href="#concepts">Core Concepts</a></li>
         <li><a href="#results">Simulation Results</a></li>
         <li><a href="#analysis">Analysis & Insights</a></li>
     </ul>
@@ -189,6 +190,30 @@ system.cpu.dcache = Cache(
                 <li><strong>Phase 5 (Replacement Stress):</strong> Iterates through 257 distinct cache lines. Since the cache only holds 256 lines, this forces a replacement on every cycle if the policy is not efficient (FIFO thrashing).</li>
                 <li><strong>Phase 6 (Working Set Sweep):</strong> Gradually increases the working set size to observe the "knee" in the performance curve.</li>
             </ul>
+        </div>
+    </section>
+
+    <section id="concepts">
+        <h2>Core Concepts: Mapping & Policies</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Cache Mapping Strategies</h3>
+                <p>Mapping defines how a memory address is located within the cache:</p>
+                <ul>
+                    <li><strong>Direct Mapped (1-way):</strong> Each memory address maps to exactly one specific cache line. High conflict potential.</li>
+                    <li><strong>Set-Associative (N-way):</strong> Memory maps to a "set" containing N lines. A balance between speed and flexibility.</li>
+                    <li><strong>Fully Associative:</strong> Any memory address can reside in <em>any</em> cache line. Minimizes conflict misses but requires complex hardware.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Replacement Policies</h3>
+                <p>When a cache set is full, the policy decides which line to evict:</p>
+                <ul>
+                    <li><strong>LRU (Least Recently Used):</strong> Evicts the line that hasn't been accessed for the longest time. Best for temporal locality.</li>
+                    <li><strong>FIFO (First-In, First-Out):</strong> Evicts the "oldest" line regardless of access history. Simple but prone to thrashing.</li>
+                    <li><strong>Random:</strong> Picks a victim at random. Uniform performance, immune to pathological access patterns.</li>
+                </ul>
+            </div>
         </div>
     </section>
 
@@ -390,7 +415,7 @@ system.cpu.dcache = Cache(
     },
     {
         "id": "fully_fifo",
-        "assoc": "Fully",
+        "assoc": "Full",
         "policy": "FIFO",
         "time": 0.034124,
         "missRate": 5.031499999999999,
@@ -402,7 +427,7 @@ system.cpu.dcache = Cache(
     },
     {
         "id": "fully_lru",
-        "assoc": "Fully",
+        "assoc": "Full",
         "policy": "LRU",
         "time": 0.023162,
         "missRate": 0.2952,
@@ -451,7 +476,7 @@ system.cpu.dcache = Cache(
         simulationData.forEach(d => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${d.assoc}-way</td>
+                <td>${d.assoc === 'Full' ? 'Full Assoc' : d.assoc + '-way'}</td>
                 <td><span class="badge badge-${d.policy.toLowerCase()}">${d.policy}</span></td>
                 <td>${d.hitRate.toFixed(2)}%</td>
                 <td>${d.missRate.toFixed(3)}%</td>
@@ -465,11 +490,11 @@ system.cpu.dcache = Cache(
     function initHighlights() {
         const bestMiss = [...simulationData].sort((a,b) => a.missRate - b.missRate)[0];
         document.querySelector('#best-overall .stat-value').textContent = bestMiss.missRate.toFixed(3) + '%';
-        document.querySelector('#best-overall .stat-desc').textContent = `Config: ${bestMiss.assoc}-way ${bestMiss.policy}`;
+        document.querySelector('#best-overall .stat-desc').textContent = `Config: ${bestMiss.assoc}${bestMiss.assoc==='Full'?'':' -way'} ${bestMiss.policy}`;
         
         const bestAmat = [...simulationData].sort((a,b) => a.amat - b.amat)[0];
         document.querySelector('#avg-gain .stat-value').textContent = bestAmat.amat.toFixed(2) + ' cy';
-        document.querySelector('#avg-gain .stat-desc').textContent = `Config: ${bestAmat.assoc}-way ${bestAmat.policy}`;
+        document.querySelector('#avg-gain .stat-desc').textContent = `Config: ${bestAmat.assoc}${bestAmat.assoc==='Full'?'':' -way'} ${bestAmat.policy}`;
     }
 
     function initCharts() {

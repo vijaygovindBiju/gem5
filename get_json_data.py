@@ -28,7 +28,13 @@ for folder in folders:
         continue
     
     parts = folder.split('_')
-    assoc = parts[0].title()
+    # Standardize 'full' vs 'fully'
+    assoc_raw = parts[0].lower()
+    if assoc_raw in ['full', 'fully']:
+        assoc = "Full"
+    else:
+        assoc = assoc_raw.title()
+        
     policy = parts[1].upper()
     
     sim_seconds = extract_metric(stats_path, "simSeconds")
@@ -38,16 +44,11 @@ for folder in folders:
     cpi = extract_metric(stats_path, "system.cpu.cpi")
     avg_miss_latency = extract_metric(stats_path, "system.cpu.dcache.overallAvgMissLatency::total")
     
-    # 1.0 GHz clock -> 1 tick = 1 ns? Wait, gem5 default tick is 1ps.
-    # If clock is 1GHz, period is 1000 ticks.
-    # overallAvgMissLatency is in ticks.
-    # AMAT (cycles) = HitLatency (cycles) + MissRate * (MissLatency / ClockPeriod)
-    
     m_rate = float(miss_rate) if miss_rate else 0
     m_latency_ticks = float(avg_miss_latency) if avg_miss_latency else 0
     clock_period_ticks = 1000 # 1GHz
     
-    hit_latency = 2 # From index.html specs
+    hit_latency = 2 
     amat = hit_latency + m_rate * (m_latency_ticks / clock_period_ticks)
     
     results.append({

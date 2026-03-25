@@ -145,7 +145,7 @@
     },
     {
         "id": "fully_fifo",
-        "assoc": "Fully",
+        "assoc": "Full",
         "policy": "FIFO",
         "time": 0.034124,
         "missRate": 5.031499999999999,
@@ -157,7 +157,7 @@
     },
     {
         "id": "fully_lru",
-        "assoc": "Fully",
+        "assoc": "Full",
         "policy": "LRU",
         "time": 0.023162,
         "missRate": 0.2952,

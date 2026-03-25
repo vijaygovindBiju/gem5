@@ -21,6 +21,17 @@ This report summarizes the performance of various data cache configurations (16k
 | Full Assoc (Fifo) | 94.97% | 5.03% | 4.851 | 5.798175 | 0.034124 |
 | Full Assoc (Lru) | 99.70% | 0.30% | 2.171 | 3.935470 | 0.023162 |
 | Full Assoc (Random) | 99.78% | 0.22% | 2.142 | 3.915927 | 0.023047 |
+## 💡 Core Concepts
+
+### Cache Mapping strategies
+- **Direct Mapped (1-way):** Fixed memory-to-line mapping; fast but high conflict.
+- **Set-Associative (N-way):** Mapping to a set of N possible locations; balances speed and flexibility.
+- **Fully Associative:** Flexible mapping to any line; eliminates conflict misses but complex hardware.
+
+### Replacement Policies
+- **LRU (Least Recently Used):** Evicts the line with the oldest access time; exploits temporal locality.
+- **FIFO (First-In, First-Out):** Evicts the 'oldest' line regardless of access; prone to thrashing.
+- **Random:** Evicts victims at random; simple, immune to pathological access patterns.
 
 ## 🔍 Observations & Insights
 
