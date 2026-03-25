@@ -36,16 +36,31 @@ for folder in folders:
     misses = extract_metric(stats_path, "system.cpu.dcache.overallMisses::total")
     accesses = extract_metric(stats_path, "system.cpu.dcache.overallAccesses::total")
     cpi = extract_metric(stats_path, "system.cpu.cpi")
+    avg_miss_latency = extract_metric(stats_path, "system.cpu.dcache.overallAvgMissLatency::total")
+    
+    # 1.0 GHz clock -> 1 tick = 1 ns? Wait, gem5 default tick is 1ps.
+    # If clock is 1GHz, period is 1000 ticks.
+    # overallAvgMissLatency is in ticks.
+    # AMAT (cycles) = HitLatency (cycles) + MissRate * (MissLatency / ClockPeriod)
+    
+    m_rate = float(miss_rate) if miss_rate else 0
+    m_latency_ticks = float(avg_miss_latency) if avg_miss_latency else 0
+    clock_period_ticks = 1000 # 1GHz
+    
+    hit_latency = 2 # From index.html specs
+    amat = hit_latency + m_rate * (m_latency_ticks / clock_period_ticks)
     
     results.append({
         "id": folder,
         "assoc": assoc,
         "policy": policy,
         "time": float(sim_seconds) if sim_seconds else 0,
-        "missRate": float(miss_rate) * 100 if miss_rate else 0,
+        "missRate": m_rate * 100,
+        "hitRate": (1 - m_rate) * 100,
         "misses": int(misses) if misses else 0,
         "accesses": int(accesses) if accesses else 0,
-        "cpi": float(cpi) if cpi else 0
+        "cpi": float(cpi) if cpi else 0,
+        "amat": amat
     })
 
 with open("results.json", "w") as f:

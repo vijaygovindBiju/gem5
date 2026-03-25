@@ -5,9 +5,11 @@
         "policy": "FIFO",
         "time": 0.030148,
         "missRate": 3.4318,
+        "hitRate": 96.5682,
         "misses": 145548,
         "accesses": 4241101,
-        "cpi": 5.122588
+        "cpi": 5.122588,
+        "amat": 3.880985641647632
     },
     {
         "id": "1_lru",
@@ -15,9 +17,11 @@
         "policy": "LRU",
         "time": 0.030148,
         "missRate": 3.4318,
+        "hitRate": 96.5682,
         "misses": 145548,
         "accesses": 4241101,
-        "cpi": 5.122588
+        "cpi": 5.122588,
+        "amat": 3.880985641647632
     },
     {
         "id": "1_random",
@@ -25,9 +29,11 @@
         "policy": "RANDOM",
         "time": 0.030148,
         "missRate": 3.4318,
+        "hitRate": 96.5682,
         "misses": 145548,
         "accesses": 4241101,
-        "cpi": 5.122588
+        "cpi": 5.122588,
+        "amat": 3.880985641647632
     },
     {
         "id": "2_fifo",
@@ -35,9 +41,11 @@
         "policy": "FIFO",
         "time": 0.026485,
         "missRate": 1.7902999999999998,
+        "hitRate": 98.2097,
         "misses": 75928,
         "accesses": 4241101,
-        "cpi": 4.500055
+        "cpi": 4.500055,
+        "amat": 2.984311552027636
     },
     {
         "id": "2_lru",
@@ -45,9 +53,11 @@
         "policy": "LRU",
         "time": 0.025379,
         "missRate": 1.2852000000000001,
+        "hitRate": 98.7148,
         "misses": 54505,
         "accesses": 4241101,
-        "cpi": 4.312176
+        "cpi": 4.312176,
+        "amat": 2.71341203236688
     },
     {
         "id": "2_random",
@@ -55,9 +65,11 @@
         "policy": "RANDOM",
         "time": 0.02584,
         "missRate": 1.4853,
+        "hitRate": 98.5147,
         "misses": 62992,
         "accesses": 4241101,
-        "cpi": 4.390577
+        "cpi": 4.390577,
+        "amat": 2.826184213279169
     },
     {
         "id": "4_fifo",
@@ -65,9 +77,11 @@
         "policy": "FIFO",
         "time": 0.023952,
         "missRate": 0.6901,
+        "hitRate": 99.3099,
         "misses": 29269,
         "accesses": 4241101,
-        "cpi": 4.069676
+        "cpi": 4.069676,
+        "amat": 2.365029867438766
     },
     {
         "id": "4_lru",
@@ -75,9 +89,11 @@
         "policy": "LRU",
         "time": 0.023467,
         "missRate": 0.4586,
+        "hitRate": 99.5414,
         "misses": 19448,
         "accesses": 4241101,
-        "cpi": 3.987402
+        "cpi": 3.987402,
+        "amat": 2.24630012844283
     },
     {
         "id": "4_random",
@@ -85,9 +101,11 @@
         "policy": "RANDOM",
         "time": 0.023355,
         "missRate": 0.39480000000000004,
+        "hitRate": 99.60520000000001,
         "misses": 16742,
         "accesses": 4241101,
-        "cpi": 3.968233
+        "cpi": 3.968233,
+        "amat": 2.218311996177548
     },
     {
         "id": "8_fifo",
@@ -95,9 +113,11 @@
         "policy": "FIFO",
         "time": 0.023744,
         "missRate": 0.5475,
+        "hitRate": 99.4525,
         "misses": 23220,
         "accesses": 4241101,
-        "cpi": 4.034377
+        "cpi": 4.034377,
+        "amat": 2.313263136303575
     },
     {
         "id": "8_lru",
@@ -105,9 +125,11 @@
         "policy": "LRU",
         "time": 0.022929,
         "missRate": 0.1877,
+        "hitRate": 99.8123,
         "misses": 7960,
         "accesses": 4241101,
-        "cpi": 3.895874
+        "cpi": 3.895874,
+        "amat": 2.11390725414554
     },
     {
         "id": "8_random",
@@ -115,9 +137,11 @@
         "policy": "RANDOM",
         "time": 0.023006,
         "missRate": 0.2186,
+        "hitRate": 99.78139999999999,
         "misses": 9273,
         "accesses": 4241101,
-        "cpi": 3.909076
+        "cpi": 3.909076,
+        "amat": 2.132756890326236
     },
     {
         "id": "fully_fifo",
@@ -125,9 +149,11 @@
         "policy": "FIFO",
         "time": 0.034124,
         "missRate": 5.031499999999999,
+        "hitRate": 94.9685,
         "misses": 213391,
         "accesses": 4241101,
-        "cpi": 5.798175
+        "cpi": 5.798175,
+        "amat": 4.850525799672059
     },
     {
         "id": "fully_lru",
@@ -135,9 +161,11 @@
         "policy": "LRU",
         "time": 0.023162,
         "missRate": 0.2952,
+        "hitRate": 99.7048,
         "misses": 12518,
         "accesses": 4241101,
-        "cpi": 3.93547
+        "cpi": 3.93547,
+        "amat": 2.170966266175592
     },
     {
         "id": "full_random",
@@ -145,8 +173,10 @@
         "policy": "RANDOM",
         "time": 0.023047,
         "missRate": 0.2242,
+        "hitRate": 99.7758,
         "misses": 9508,
         "accesses": 4241101,
-        "cpi": 3.915927
+        "cpi": 3.915927,
+        "amat": 2.142438447834042
     }
 ]
