@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapping Technique Comparison: LRU vs FIFO</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --border: #e2e8f0;
+            --lru-color: #10b981;
+            --fifo-color: #f59e0b;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: #1e293b;
+            margin: 0;
+            padding: 40px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2rem; color: #0f172a; margin-bottom: 8px; }
+        .subtitle { color: var(--secondary); margin-bottom: 30px; }
+        
+        .nav-link { margin-bottom: 20px; display: block; text-decoration: none; color: var(--primary); font-weight: 600; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container { position: relative; height: 450px; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.95rem; }
+        th { background: #f1f5f9; text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); }
+        
+        .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-lru { background: #dcfce7; color: #166534; }
+        .badge-fifo { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="nav-link">← Return to Main Report</a>
+    
+    <header>
+        <h1>Cache Mapping Technique Performance</h1>
+        <p class="subtitle">Empirical comparison of LRU and FIFO policies across Associativities</p>
+    </header>
+
+    <div class="grid-2">
+        <!-- Miss Rate Graph -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px; color: #334155;">Miss Rate (%) Comparison</h3>
+            <div class="chart-container"><canvas id="missRateChart"></canvas></div>
+        </div>
+
+        <!-- CPI Graph -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px; color: #334155;">System CPI Comparison</h3>
+            <div class="chart-container"><canvas id="cpiChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Numerical Performance Summary</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mapping Technique</th>
+                    <th>Replacement Policy</th>
+                    <th>Miss Rate (%)</th>
+                    <th>CPI</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const simulationResults = [
+        {"tech": "Direct Mapped", "policy": "LRU", "miss": 3.4318, "cpi": 5.1226},
+        {"tech": "Direct Mapped", "policy": "FIFO", "miss": 3.4318, "cpi": 5.1226},
+        {"tech": "2-Way Set Assoc", "policy": "LRU", "miss": 1.2852, "cpi": 4.3122},
+        {"tech": "2-Way Set Assoc", "policy": "FIFO", "miss": 1.7903, "cpi": 4.5001},
+        {"tech": "4-Way Set Assoc", "policy": "LRU", "miss": 0.4586, "cpi": 3.9874},
+        {"tech": "4-Way Set Assoc", "policy": "FIFO", "miss": 0.6901, "cpi": 4.0697},
+        {"tech": "8-Way Set Assoc", "policy": "LRU", "miss": 0.1877, "cpi": 3.8959},
+        {"tech": "8-Way Set Assoc", "policy": "FIFO", "miss": 0.5475, "cpi": 4.0344}
+    ];
+
+    const mappingLabels = ["Direct Mapped", "2-Way Set Assoc", "4-Way Set Assoc", "8-Way Set Assoc"];
+    
+    function getDataset(policy, metric, color) {
+        return {
+            label: policy,
+            data: mappingLabels.map(label => {
+                const match = simulationResults.find(r => r.tech === label && r.policy === policy);
+                return match[metric];
+            }),
+            borderColor: color,
+            backgroundColor: color + '22',
+            tension: 0.1,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            fill: false,
+            borderWidth: 3
+        };
+    }
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 13, weight: '600' }, usePointStyle: true, padding: 25 } },
+            tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12 }
+        },
+        scales: {
+            y: { beginAtZero: false, grid: { color: '#f1f5f9' }, ticks: { font: { weight: '500' } } },
+            x: { grid: { display: false }, ticks: { font: { weight: '600' } } }
+        }
+    };
+
+    // Render Charts
+    new Chart(document.getElementById('missRateChart'), {
+        type: 'line',
+        data: { labels: mappingLabels, datasets: [
+            getDataset('LRU', 'miss', '#10b981'),
+            getDataset('FIFO', 'miss', '#f59e0b')
+        ]},
+        options: chartOptions
+    });
+
+    new Chart(document.getElementById('cpiChart'), {
+        type: 'line',
+        data: { labels: mappingLabels, datasets: [
+            getDataset('LRU', 'cpi', '#10b981'),
+            getDataset('FIFO', 'cpi', '#f59e0b')
+        ]},
+        options: chartOptions
+    });
+
+    // Populate Table
+    const tbody = document.getElementById('tableBody');
+    simulationResults.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-weight: 600;">${r.tech}</td>
+            <td><span class="badge badge-${r.policy.toLowerCase()}">${r.policy}</span></td>
+            <td>${r.miss.toFixed(3)}%</td>
+            <td>${r.cpi.toFixed(4)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+</script>
+
+</body>
+</html>
