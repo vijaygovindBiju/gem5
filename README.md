@@ -1,49 +1,71 @@
-# Cache Performance Analysis & Optimization
+# Cache Performance Analysis with gem5
 
-An empirical study of cache associativity and replacement policies on a 16kB data cache, simulated using the **gem5** infrastructure. This project evaluates how different mapping techniques (1, 2, 4, and 8-way set-associative) and replacement algorithms (LRU, FIFO) impact system performance metrics like Hit Rate, AMAT, and CPI.
+An empirical computer-architecture study using **gem5** to evaluate how cache associativity and replacement policies affect CPU performance.
 
-## 📊 Project Overview
+## Overview
 
-Modern CPU performance is heavily dependent on the efficiency of the cache hierarchy. This lab explores the trade-offs between hardware complexity (associativity) and eviction intelligence (replacement policies) through a series of controlled simulations.
+The project investigates a 16 KiB data cache using controlled memory-access workloads. It compares direct-mapped, 2-way, 4-way, and 8-way set-associative caches together with LRU and FIFO replacement policies.
 
-### Key Configurations Tested:
-- **Associativity:** 1-way (Direct Mapped), 2-way, 4-way, and 8-way set-associative.
-- **Replacement Policies:** Least Recently Used (LRU) and First-In, First-Out (FIFO).
-- **Cache Geometry:** 16kB total size, 64-Byte line size (256 lines).
+The goal is to connect cache-design decisions with measurable system metrics such as hit rate, AMAT, miss rate, and CPI.
 
-## 🚀 Key Findings
+## Experimental Configuration
 
-- **The "2-Way" Leap:** Moving from 1-way to 2-way associativity provides the single largest performance gain, reducing the miss rate by approximately **50%**.
-- **LRU Superiority:** LRU consistently outperforms FIFO across all associative configurations. The advantage is most pronounced at 8-way associativity, where LRU achieved a near-perfect **99.81% hit rate**.
-- **The Sweet Spot:** **4-Way LRU** represents the optimal balance for this workload, capturing over 99.5% of hits while maintaining lower hardware complexity compared to 8-way designs.
-- **Latency Impact:** Increasing associativity from 1-way to 8-way (LRU) reduced the system CPI from **5.12** to **3.90**—a **24% improvement** in overall execution efficiency.
+| Parameter | Configuration |
+|---|---|
+| Cache size | 16 KiB |
+| Cache line size | 64 bytes |
+| Cache lines | 256 |
+| Associativity | 1, 2, 4, 8-way |
+| Replacement | LRU, FIFO |
+| CPU model | x86 TimingSimpleCPU |
+| gem5 mode | System-Call Emulation (SE) |
 
-## 🛠️ Simulation & Methodology
+## Key Findings
 
-The simulations were performed using **gem5** in System-Call Emulation (SE) mode with an x86 TimingSimpleCPU model.
+- Moving from direct-mapped to 2-way associativity produced the largest improvement for the tested workload.
+- LRU consistently performed better than FIFO in the evaluated configurations.
+- 4-way LRU provided a strong balance between hit rate and associativity for this workload.
+- The tested LRU configuration reduced CPI substantially as associativity increased.
 
-### Workload Details (`test.c`):
-The benchmark generates pathological memory access patterns designed to stress-test cache logic:
-- **Conflict Stress:** Accesses memory locations mapped to the same set using 16kB strides.
-- **Replacement Stress:** Iterates through 257 distinct cache lines (1 more than the total capacity) to force evictions and test the efficiency of LRU vs FIFO.
+> Results are workload-specific and should be interpreted as an experimental study rather than a universal cache-design rule.
 
-## 📁 Repository Structure
+## Workload
 
-- `index.html`: Main interactive dashboard for result visualization.
-- `graph.html`: Comparative performance charts (LRU vs FIFO).
-- `direct.html` / `2way.html` / `4way.html` / `8way.html`: Detailed analysis for each associativity.
-- `results.json`: Raw simulation data for all 8 configurations.
-- `PERFORMANCE_SUMMARY.md`: High-level technical summary.
+`test.c` generates memory-access patterns designed to stress cache behavior, including:
 
-## 📚 References
+- **Conflict stress** using addresses mapped to the same cache set.
+- **Replacement stress** by accessing more cache lines than the cache can hold simultaneously.
 
-**Benchmark Methodology**
-- McVoy, L. and Staelin, C. (1996). *lmbench: Portable Tools for Performance Analysis.* Proceedings of USENIX ATC.
+## Repository Contents
 
-**Simulation Infrastructure**
-- Binkert, N. et al. (2011). *The gem5 Simulator.* ACM SIGARCH Computer Architecture News, 39(2).
-- Lowe-Power, J. et al. (2020). *The gem5 Simulator: Version 20.0+.* arXiv:2007.03152.
+```text
+index.html                 Interactive results dashboard
+graph.html                 Comparative performance charts
+direct.html                Direct-mapped analysis
+2way.html                  2-way analysis
+4way.html                  4-way analysis
+8way.html                  8-way analysis
+results.json               Raw simulation results
+PERFORMANCE_SUMMARY.md     Technical performance summary
+test.c                     Benchmark workload
+```
 
-**Cache Architecture**
-- Hill, M.D. and Smith, A.J. (1989). *Evaluating Associativity in CPU Caches.* IEEE Transactions on Computers, 38(12).
-- Hennessy, J. L. and Patterson, D. A. (2019). *Computer Architecture: A Quantitative Approach.* 6th ed. Morgan Kaufmann.
+## What This Project Demonstrates
+
+- CPU cache organization and associativity
+- Cache replacement policies
+- Performance measurement and interpretation
+- gem5 simulation methodology
+- Experimental comparison of architecture configurations
+- Presenting simulation data through visualizations
+
+## References
+
+- Binkert et al., *The gem5 Simulator*, ACM SIGARCH Computer Architecture News.
+- Lowe-Power et al., *The gem5 Simulator: Version 20.0+*.
+- Hennessy & Patterson, *Computer Architecture: A Quantitative Approach*.
+- Hill & Smith, *Evaluating Associativity in CPU Caches*.
+
+## License
+
+Academic and educational project.
